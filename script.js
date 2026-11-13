@@ -1191,7 +1191,7 @@ function openProject(projectId, trigger) {
       <header class="detail-hero">
         <div class="detail-hero-copy">
           <p class="eyebrow">${project.categoryLabel} / ${project.year}</p>
-          <h2>${project.title}</h2>
+          <h2 id="dialog-title">${project.title}</h2>
           <p>${project.description}</p>
         </div>
         <div class="detail-hero-media">
@@ -1292,7 +1292,7 @@ function openChinaDailyResults(trigger) {
       <header class="china-results-head">
         <p class="eyebrow">CHINA DAILY / INTERNSHIP ARCHIVE</p>
         <div>
-          <h2>中国日报实习成果</h2>
+          <h2 id="dialog-title">中国日报实习成果</h2>
           <p>新闻策划、短视频创作与海外账号运营。点击任意封面播放，或跳转查看完整新闻内容。</p>
         </div>
       </header>
@@ -1410,7 +1410,7 @@ function openVideo(item, trigger) {
   dialogContent.innerHTML = `
     <div class="video-detail">
       <div class="video-detail-bar">
-        <h2>${item.name}</h2>
+        <h2 id="dialog-title">${item.name}</h2>
         <span>VIDEO ARCHIVE / WEB PLAYER</span>
       </div>
       <div class="video-player-shell">
@@ -1435,7 +1435,7 @@ function openNews(item, trigger) {
   dialogContent.innerHTML = `
     <div class="video-detail">
       <div class="video-detail-bar">
-        <h2>${item.name}</h2>
+        <h2 id="dialog-title">${item.name}</h2>
         <span>NEWS ARCHIVE / 04 LINKS</span>
       </div>
       <div class="news-links">
@@ -1518,6 +1518,15 @@ filterButtons.forEach((button) => {
   });
 });
 
+document.querySelectorAll("[data-work-filter-target]").forEach((link) => {
+  link.addEventListener("click", () => {
+    const filterButton = filterButtons.find(
+      (button) => button.dataset.filter === link.dataset.workFilterTarget,
+    );
+    filterButton?.click();
+  });
+});
+
 const chinaResultsTrigger = document.querySelector("[data-china-results]");
 chinaResultsTrigger?.addEventListener("click", () => {
   openChinaDailyResults(chinaResultsTrigger);
@@ -1533,20 +1542,122 @@ chinaResultsTrigger?.addEventListener("keydown", (event) => {
 const header = document.querySelector("[data-header]");
 const menuToggle = document.querySelector("[data-menu-toggle]");
 const nav = document.querySelector("[data-nav]");
+const menuLabel = menuToggle.querySelector("[data-menu-label]");
+
+function setMenuOpen(isOpen) {
+  menuToggle.setAttribute("aria-expanded", String(isOpen));
+  nav.classList.toggle("is-open", isOpen);
+  if (menuLabel) {
+    menuLabel.textContent = isOpen ? "关闭导航" : "打开导航";
+  }
+}
 
 menuToggle.addEventListener("click", () => {
   const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
-  menuToggle.setAttribute("aria-expanded", String(!isOpen));
-  nav.classList.toggle("is-open", !isOpen);
+  setMenuOpen(!isOpen);
 });
 
 nav.querySelectorAll("a").forEach((link) => {
   link.addEventListener("click", () => {
-    menuToggle.setAttribute("aria-expanded", "false");
-    nav.classList.remove("is-open");
+    setMenuOpen(false);
     nav.querySelectorAll("a").forEach((entry) => {
       entry.classList.toggle("is-active", entry === link);
     });
+  });
+});
+
+// Copy contact details with a visible, screen-reader-friendly confirmation.
+const copyButtons = [
+  ...document.querySelectorAll(
+    '[data-copy-value]:not([aria-hidden="true"])',
+  ),
+];
+const copyToast = [...document.querySelectorAll("[data-copy-toast]")].find(
+  (toast) => !toast.closest(".footer-magnifier"),
+);
+const copyResetTimers = new WeakMap();
+let copyToastTimer = null;
+
+function legacyCopyText(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  textarea.style.opacity = "0";
+  document.body.append(textarea);
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+
+  let copied = false;
+  try {
+    copied = document.execCommand("copy");
+  } catch {
+    copied = false;
+  }
+  textarea.remove();
+  return copied;
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall through for browsers that expose the API but deny the write.
+    }
+  }
+  return legacyCopyText(text);
+}
+
+function showCopyToast(message) {
+  if (!copyToast) return;
+  window.clearTimeout(copyToastTimer);
+  copyToast.textContent = message;
+  copyToast.classList.remove("is-visible");
+  void copyToast.offsetWidth;
+  copyToast.classList.add("is-visible");
+  copyToastTimer = window.setTimeout(() => {
+    copyToast.classList.remove("is-visible");
+  }, 2400);
+}
+
+copyButtons.forEach((button) => {
+  button.addEventListener("click", async () => {
+    const value = button.dataset.copyValue;
+    const name = button.dataset.copyName || "内容";
+    const label = button.querySelector(".contact-action-label");
+    const icon = button.querySelector("[data-copy-icon]");
+    const copied = await copyText(value);
+
+    if (!copied) {
+      showCopyToast(`${name}复制失败，请手动复制：${value}`);
+      return;
+    }
+
+    window.clearTimeout(copyResetTimers.get(button));
+    button.classList.add("is-copied");
+    if (label) {
+      label.textContent = button.dataset.copySuccessLabel || `${name}已复制`;
+    }
+    if (icon) {
+      icon.textContent = "✓";
+    }
+    showCopyToast(button.dataset.copyMessage || `${name}已复制`);
+
+    copyResetTimers.set(
+      button,
+      window.setTimeout(() => {
+        button.classList.remove("is-copied");
+        if (label) {
+          label.textContent = name === "邮箱" ? "一键复制邮箱" : "一键复制电话";
+        }
+        if (icon) {
+          icon.textContent = "⧉";
+        }
+      }, 1800),
+    );
   });
 });
 
@@ -1570,7 +1681,7 @@ function updateActiveNavigation() {
 
   const headerBottom = header.getBoundingClientRect().bottom;
   const marker = headerBottom + 24;
-  let activeSection = observedSections[0];
+  let activeSection = null;
 
   observedSections.forEach((section) => {
     if (section.getBoundingClientRect().top <= marker) {
@@ -1586,10 +1697,15 @@ function updateActiveNavigation() {
   }
 
   navLinks.forEach((link) => {
-    link.classList.toggle(
-      "is-active",
-      link.getAttribute("href") === `#${activeSection.id}`,
-    );
+    const isActive =
+      activeSection &&
+      link.getAttribute("href") === `#${activeSection.id}`;
+    link.classList.toggle("is-active", isActive);
+    if (isActive) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
   });
   activeNavFrame = null;
 }
