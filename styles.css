@@ -7582,3 +7582,343 @@ html.is-footer-cursor.has-custom-cursor .cursor-layer {
     font-size: 12px;
   }
 }
+
+/* Click affordance pass */
+.hero-work-cta {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero-work-cta::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -8px;
+  border: 1.5px solid rgba(255, 203, 59, 0.82);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  animation: hero-cta-focus 3s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.hero-work-cta::after {
+  content: "点击进入";
+  position: absolute;
+  top: -24px;
+  right: -4px;
+  padding: 3px 7px;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--ink);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0.92;
+  pointer-events: none;
+  animation: hero-cta-label 3s ease-in-out infinite;
+}
+
+.hero-work-cta > span {
+  display: inline-block;
+  animation: hero-cta-arrow 3s ease-in-out infinite;
+}
+
+.hero-work-cta:hover::before,
+.hero-work-cta:focus-visible::before {
+  animation-play-state: paused;
+  opacity: 0.25;
+}
+
+.hero-work-cta:hover::after,
+.hero-work-cta:focus-visible::after {
+  opacity: 1;
+}
+
+.hero-work-cta:hover > span,
+.hero-work-cta:focus-visible > span {
+  animation-play-state: paused;
+  transform: translateY(3px);
+}
+
+.experience-result-links button {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.experience-result-links button::before {
+  content: attr(data-click-cue);
+  position: absolute;
+  z-index: 3;
+  top: -9px;
+  right: 7px;
+  padding: 2px 5px;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 1px 1px 0 var(--ink);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 900;
+  line-height: 1.2;
+  opacity: 0.9;
+  pointer-events: none;
+  transform: translateY(0) scale(1);
+  animation: qunar-cue-label 2.8s ease-in-out infinite;
+}
+
+.experience-result-links button::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -5px;
+  border: 1px dashed rgba(255, 203, 59, 0.82);
+  border-radius: 9px;
+  opacity: 0;
+  pointer-events: none;
+  animation: qunar-cue-ring 2.8s ease-out infinite;
+}
+
+.experience-result-links button > span {
+  display: inline-block;
+  animation: qunar-cue-arrow 2.8s ease-in-out infinite;
+}
+
+.experience-result-links button:hover,
+.experience-result-links button:focus-visible {
+  background: var(--cream);
+  box-shadow: 4px 4px 0 var(--ink);
+  transform: translate(-1px, -2px);
+}
+
+.experience-result-links button:hover::before,
+.experience-result-links button:focus-visible::before {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  animation: none;
+}
+
+.experience-result-links button:hover::after,
+.experience-result-links button:focus-visible::after,
+.experience-result-links button:hover > span,
+.experience-result-links button:focus-visible > span {
+  animation-play-state: paused;
+}
+
+.experience-trigger-play::before,
+.experience-trigger-play::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border: 2px solid rgba(255, 203, 59, 0.86);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  animation: china-play-pulse 2.6s ease-out infinite;
+}
+
+.experience-trigger-play::after {
+  animation-delay: 1.3s;
+}
+
+.experience-trigger-hint {
+  position: absolute;
+  z-index: 6;
+  top: 66%;
+  left: 63%;
+  padding: 5px 9px;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 2px 2px 0 var(--ink);
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, 0);
+  animation: china-hint-breathe 2.6s ease-in-out infinite;
+}
+
+.experience-results-trigger:hover .experience-trigger-play,
+.experience-results-trigger:focus-visible .experience-trigger-play {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.experience-results-trigger:hover .experience-trigger-play::before,
+.experience-results-trigger:hover .experience-trigger-play::after,
+.experience-results-trigger:focus-visible .experience-trigger-play::before,
+.experience-results-trigger:focus-visible .experience-trigger-play::after,
+.experience-results-trigger:hover .experience-trigger-hint,
+.experience-results-trigger:focus-visible .experience-trigger-hint {
+  animation-play-state: paused;
+  opacity: 0.2;
+}
+
+.experience-results-trigger:active .experience-trigger-play {
+  transform: translate(-50%, -50%) scale(0.94);
+}
+
+@keyframes hero-cta-focus {
+  0%,
+  58% {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  66% {
+    opacity: 0.82;
+  }
+  88%,
+  100% {
+    opacity: 0;
+    transform: scale(1.09);
+  }
+}
+
+@keyframes hero-cta-arrow {
+  0%,
+  55%,
+  100% {
+    transform: translateY(-1px);
+  }
+  67% {
+    transform: translateY(4px);
+  }
+  78% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-cta-label {
+  0%,
+  55%,
+  100% {
+    opacity: 0.88;
+    transform: translateY(0);
+  }
+  68% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes qunar-cue-label {
+  0%,
+  100% {
+    opacity: 0.88;
+    transform: translateY(0) scale(1);
+  }
+  72%,
+  86% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.035);
+  }
+}
+
+@keyframes qunar-cue-ring {
+  0%,
+  64% {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  72% {
+    opacity: 0.86;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.045);
+  }
+}
+
+@keyframes qunar-cue-arrow {
+  0%,
+  58%,
+  100% {
+    transform: translate(0, 0);
+  }
+  68% {
+    transform: translate(2px, -2px);
+  }
+  78% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes china-play-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.84);
+  }
+  24% {
+    opacity: 0.72;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
+}
+
+@keyframes china-hint-breathe {
+  0%,
+  68%,
+  100% {
+    opacity: 0.88;
+    transform: translate(-50%, 0) scale(1);
+  }
+  78% {
+    opacity: 1;
+    transform: translate(-50%, -2px) scale(1.035);
+  }
+}
+
+@media (max-width: 900px) {
+  .experience-trigger-hint {
+    top: 68%;
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .experience-result-links button::before {
+    right: 5px;
+  }
+
+  .experience-trigger-hint {
+    top: 70%;
+    left: 50%;
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-work-cta::before,
+  .hero-work-cta::after,
+  .hero-work-cta > span,
+  .experience-result-links button::before,
+  .experience-result-links button::after,
+  .experience-result-links button > span,
+  .experience-trigger-play::before,
+  .experience-trigger-play::after,
+  .experience-trigger-hint {
+    animation: none;
+  }
+
+  .experience-trigger-hint,
+  .experience-result-links button::before {
+    opacity: 1;
+  }
+
+  .hero-work-cta::after {
+    opacity: 1;
+  }
+}
